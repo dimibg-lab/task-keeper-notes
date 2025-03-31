@@ -15,6 +15,15 @@ export const formatMessagesForApi = (messages: ChatMessage[]) => {
 // Функция за изпращане на съобщение към AI и получаване на отговор
 export const sendMessageToAI = async (messages: ChatMessage[]): Promise<string> => {
   try {
+    // Добавяме системно съобщение, което инструктира модела да отговаря само на български
+    const messagesWithSystemInstruction = [
+      {
+        role: "system",
+        content: "Отговаряй само на български език, независимо на какъв език е зададен въпросът. Бъди подробен и учтив в отговорите си."
+      },
+      ...formatMessagesForApi(messages)
+    ];
+
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
@@ -25,7 +34,7 @@ export const sendMessageToAI = async (messages: ChatMessage[]): Promise<string> 
       },
       body: JSON.stringify({
         model: "google/gemini-2.0-flash-thinking-exp:free",
-        messages: formatMessagesForApi(messages),
+        messages: messagesWithSystemInstruction,
         temperature: 0.7,
         max_tokens: 1000,
       }),
