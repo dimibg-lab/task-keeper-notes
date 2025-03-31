@@ -183,7 +183,7 @@ const Alarms: React.FC = () => {
                     <SelectValue placeholder="Избери задача" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Без задача</SelectItem>
+                    <SelectItem value="none">Без задача</SelectItem>
                     {availableTasks.map(task => (
                       <SelectItem key={task.id} value={task.id}>{task.title}</SelectItem>
                     ))}
@@ -324,7 +324,7 @@ const Alarms: React.FC = () => {
                   <SelectValue placeholder="Избери задача" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Без задача</SelectItem>
+                  <SelectItem value="none">Без задача</SelectItem>
                   {availableTasks.map(task => (
                     <SelectItem key={task.id} value={task.id}>{task.title}</SelectItem>
                   ))}
