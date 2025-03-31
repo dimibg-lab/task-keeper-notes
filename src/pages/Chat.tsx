@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { useAppContext } from '@/context/AppContext';
 import { ChatMessage as ChatMessageType } from '@/types';
@@ -11,7 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { sendMessageToAI } from '@/utils/chatUtils';
 import ChatMessage from '@/components/ChatMessage';
-import { PaperPlaneIcon, Plus, Trash2 } from 'lucide-react';
+import { Send, Plus, Trash2 } from 'lucide-react';
 
 const Chat = () => {
   const { 
@@ -30,14 +29,12 @@ const Chat = () => {
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  // Ако няма активен разговор и има разговори, избираме първия
   useEffect(() => {
     if (!activeConversationId && conversations.length > 0) {
       setActiveConversationId(conversations[0].id);
     }
   }, [conversations, activeConversationId]);
   
-  // Автоматично превъртане до последното съобщение
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [conversations, activeConversationId]);
@@ -47,7 +44,6 @@ const Chat = () => {
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !activeConversationId) return;
     
-    // Добавяме съобщението на потребителя
     const userMessage: Omit<ChatMessageType, 'id' | 'timestamp'> = {
       role: 'user',
       content: newMessage,
@@ -58,21 +54,21 @@ const Chat = () => {
     setIsLoading(true);
     
     try {
-      // Извличаме всички съобщения от активния разговор
       const updatedConversation = conversations.find(c => c.id === activeConversationId);
       if (!updatedConversation) throw new Error('Разговорът не е намерен');
       
-      const allMessages = [...updatedConversation.messages, {
-        id: 'temp',
-        role: 'user',
-        content: newMessage,
-        timestamp: new Date()
-      }];
+      const allMessages: ChatMessageType[] = [
+        ...updatedConversation.messages,
+        {
+          id: 'temp',
+          role: 'user' as const,
+          content: newMessage,
+          timestamp: new Date()
+        }
+      ];
       
-      // Изпращаме заявка към AI
       const aiResponse = await sendMessageToAI(allMessages);
       
-      // Добавяме отговора от AI
       const assistantMessage: Omit<ChatMessageType, 'id' | 'timestamp'> = {
         role: 'assistant',
         content: aiResponse,
@@ -80,9 +76,7 @@ const Chat = () => {
       
       addMessageToConversation(activeConversationId, assistantMessage);
       
-      // Обновяваме заглавието на разговора ако е първо съобщение
       if (updatedConversation.messages.length === 0) {
-        // Взимаме първите 30 символа от съобщението за заглавие или първи ред
         const title = newMessage.split('\n')[0].substring(0, 30) + (newMessage.length > 30 ? '...' : '');
         updateConversation(activeConversationId, { title });
       }
@@ -130,7 +124,6 @@ const Chat = () => {
       <h1 className="text-2xl font-bold mb-4">AI Чат</h1>
       
       <div className="flex flex-col md:flex-row gap-4 min-h-[70vh]">
-        {/* Sidebar с разговори */}
         <Card className="md:w-1/4 w-full">
           <CardHeader className="p-4">
             <CardTitle className="text-lg flex justify-between items-center">
@@ -198,7 +191,6 @@ const Chat = () => {
           </CardContent>
         </Card>
         
-        {/* Основен чат панел */}
         <Card className="md:w-3/4 w-full flex flex-col">
           <CardHeader className="p-4 border-b">
             <CardTitle className="text-lg">
@@ -258,7 +250,7 @@ const Chat = () => {
                   disabled={!newMessage.trim() || isLoading}
                   className="self-end"
                 >
-                  <PaperPlaneIcon className="h-4 w-4" />
+                  <Send className="h-4 w-4" />
                 </Button>
               </div>
             </div>
