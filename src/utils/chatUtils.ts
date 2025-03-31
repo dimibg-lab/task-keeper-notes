@@ -24,7 +24,7 @@ export const sendMessageToAI = async (messages: ChatMessage[]): Promise<string> 
         'X-Title': 'Personal Assistant App',
       },
       body: JSON.stringify({
-        model: "deepseek/deepseek-v3-base:free",
+        model: "google/gemini-2.0-flash-thinking-exp:free",
         messages: formatMessagesForApi(messages),
         temperature: 0.7,
         max_tokens: 1000,
