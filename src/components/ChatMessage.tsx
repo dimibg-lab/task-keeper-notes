@@ -13,11 +13,11 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   
   return (
     <div className={cn(
-      "flex w-full mb-4",
+      "flex w-full",
       isUser ? "justify-end" : "justify-start"
     )}>
       <div className={cn(
-        "flex items-start gap-2 max-w-[80%]",
+        "flex items-start gap-2 max-w-[85%]",
         isUser ? "flex-row-reverse" : "flex-row"
       )}>
         <Avatar className={cn(
