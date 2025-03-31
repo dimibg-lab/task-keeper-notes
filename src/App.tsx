@@ -9,6 +9,7 @@ import Notes from "./pages/Notes";
 import Alarms from "./pages/Alarms";
 import Gallery from "./pages/Gallery";
 import More from "./pages/More";
+import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
 import BottomNavigation from "./components/BottomNavigation";
 import { AppProvider } from "./context/AppContext";
@@ -30,6 +31,7 @@ const App = () => (
                 <Route path="/notes" element={<Notes />} />
                 <Route path="/alarms" element={<Alarms />} />
                 <Route path="/gallery" element={<Gallery />} />
+                <Route path="/chat" element={<Chat />} />
                 <Route path="/more" element={<More />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

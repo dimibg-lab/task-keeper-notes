@@ -43,3 +43,19 @@ export interface AppImage {
   };
   createdAt: Date;
 }
+
+// Интерфейси за AI чат съобщения
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+}
+
+export interface ChatConversation {
+  id: string;
+  title: string;
+  messages: ChatMessage[];
+  createdAt: Date;
+  updatedAt: Date;
+}

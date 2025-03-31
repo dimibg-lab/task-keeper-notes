@@ -1,6 +1,5 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Task, Note, Alarm, AppImage } from '@/types';
+import { Task, Note, Alarm, AppImage, ChatConversation, ChatMessage } from '@/types';
 import { toast } from 'sonner';
 
 interface AppContextType {
@@ -8,6 +7,7 @@ interface AppContextType {
   notes: Note[];
   alarms: Alarm[];
   images: AppImage[];
+  conversations: ChatConversation[];
   addTask: (task: Omit<Task, 'id' | 'createdAt'>) => void;
   updateTask: (id: string, task: Partial<Task>) => void;
   deleteTask: (id: string) => void;
@@ -19,6 +19,10 @@ interface AppContextType {
   deleteAlarm: (id: string) => void;
   addImage: (image: Omit<AppImage, 'id' | 'createdAt'>) => void;
   deleteImage: (id: string) => void;
+  addConversation: (conversation: Omit<ChatConversation, 'id' | 'createdAt' | 'updatedAt'>) => string;
+  updateConversation: (id: string, updates: Partial<ChatConversation>) => void;
+  deleteConversation: (id: string) => void;
+  addMessageToConversation: (conversationId: string, message: Omit<ChatMessage, 'id' | 'timestamp'>) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -32,7 +36,7 @@ export const useAppContext = () => {
 };
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Инициализиране на състоянието от localStorage ако е налично
+  // Инициализиране на състоянието от localStorage ��ко е налично
   const [tasks, setTasks] = useState<Task[]>(() => {
     const savedTasks = localStorage.getItem('tasks');
     return savedTasks ? JSON.parse(savedTasks) : [];
@@ -53,6 +57,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return savedImages ? JSON.parse(savedImages) : [];
   });
 
+  const [conversations, setConversations] = useState<ChatConversation[]>(() => {
+    const savedConversations = localStorage.getItem('conversations');
+    return savedConversations ? JSON.parse(savedConversations) : [];
+  });
+
   // Записване на промените в localStorage
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
@@ -69,6 +78,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     localStorage.setItem('images', JSON.stringify(images));
   }, [images]);
+
+  useEffect(() => {
+    localStorage.setItem('conversations', JSON.stringify(conversations));
+  }, [conversations]);
 
   // Функции за управление на задачите
   const addTask = (task: Omit<Task, 'id' | 'createdAt'>) => {
@@ -152,6 +165,54 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     toast.success('Изображението беше изтрито!');
   };
 
+  // Функции за управление на разговорите
+  const addConversation = (conversation: Omit<ChatConversation, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const now = new Date();
+    const newConversation: ChatConversation = {
+      ...conversation,
+      id: crypto.randomUUID(),
+      createdAt: now,
+      updatedAt: now,
+    };
+    setConversations(prev => [...prev, newConversation]);
+    return newConversation.id;
+  };
+
+  const updateConversation = (id: string, updates: Partial<ChatConversation>) => {
+    setConversations(prev => 
+      prev.map(conv => 
+        conv.id === id 
+          ? { ...conv, ...updates, updatedAt: new Date() } 
+          : conv
+      )
+    );
+  };
+
+  const deleteConversation = (id: string) => {
+    setConversations(prev => prev.filter(conv => conv.id !== id));
+    toast.success('Разговорът беше изтрит!');
+  };
+
+  const addMessageToConversation = (conversationId: string, message: Omit<ChatMessage, 'id' | 'timestamp'>) => {
+    const newMessage: ChatMessage = {
+      ...message,
+      id: crypto.randomUUID(),
+      timestamp: new Date(),
+    };
+    
+    setConversations(prev => 
+      prev.map(conv => 
+        conv.id === conversationId 
+          ? { 
+              ...conv, 
+              messages: [...conv.messages, newMessage],
+              updatedAt: new Date()
+            } 
+          : conv
+      )
+    );
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -159,6 +220,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         notes,
         alarms,
         images,
+        conversations,
         addTask,
         updateTask,
         deleteTask,
@@ -170,6 +232,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         deleteAlarm,
         addImage,
         deleteImage,
+        addConversation,
+        updateConversation,
+        deleteConversation,
+        addMessageToConversation,
       }}
     >
       {children}
