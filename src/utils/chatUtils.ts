@@ -12,6 +12,17 @@ export const formatMessagesForApi = (messages: ChatMessage[]) => {
   }));
 };
 
+// Функция за премахване на markdown звездички от текста
+const removeMarkdownFormatting = (text: string): string => {
+  // Премахваме ** за удебелен текст
+  let formattedText = text.replace(/\*\*/g, '');
+  
+  // Премахваме * за курсив
+  formattedText = formattedText.replace(/\*/g, '');
+  
+  return formattedText;
+};
+
 // Функция за изпращане на съобщение към AI и получаване на отговор
 export const sendMessageToAI = async (messages: ChatMessage[]): Promise<string> => {
   try {
@@ -19,7 +30,7 @@ export const sendMessageToAI = async (messages: ChatMessage[]): Promise<string> 
     const messagesWithSystemInstruction = [
       {
         role: "system",
-        content: "Отговаряй само на български език, независимо на какъв език е зададен въпросът. Бъди подробен и учтив в отговорите си."
+        content: "Отговаряй само на български език, независимо на какъв език е зададен въпросът. Бъди подробен и учтив в отговорите си. Не използвай markdown форматиране като звездички."
       },
       ...formatMessagesForApi(messages)
     ];
@@ -46,7 +57,9 @@ export const sendMessageToAI = async (messages: ChatMessage[]): Promise<string> 
     }
 
     const data = await response.json();
-    return data.choices[0].message.content;
+    // Премахваме markdown форматирането от отговора на AI
+    const formattedResponse = removeMarkdownFormatting(data.choices[0].message.content);
+    return formattedResponse;
   } catch (error) {
     console.error('Грешка при изпращане на съобщение:', error);
     throw error;
