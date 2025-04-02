@@ -12,6 +12,7 @@ import { sendMessageToAI, generateConversationTitle } from '@/utils/chatUtils';
 import ChatMessage from '@/components/ChatMessage';
 import { Send, Plus, Trash2, ArrowLeft, MessageSquare, MessageSquarePlus } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from '@/components/ui/progress';
 
 const Chat = () => {
   const { 
@@ -28,6 +29,7 @@ const Chat = () => {
   const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
   const [showSidebar, setShowSidebar] = useState(true);
   const [currentView, setCurrentView] = useState<'list' | 'chat'>(isMobileView ? 'list' : 'chat');
+  const [typingMessage, setTypingMessage] = useState<ChatMessageType | null>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
@@ -83,12 +85,22 @@ const Chat = () => {
         }
       ];
       
+      const typingIndicator: ChatMessageType = {
+        id: 'typing-indicator',
+        role: 'assistant',
+        content: '',
+        timestamp: new Date()
+      };
+      setTypingMessage(typingIndicator);
+      
       const aiResponse = await sendMessageToAI(allMessages);
       
       const assistantMessage: Omit<ChatMessageType, 'id' | 'timestamp'> = {
         role: 'assistant',
         content: aiResponse,
       };
+      
+      setTypingMessage(null);
       
       addMessageToConversation(activeConversationId, assistantMessage);
       
@@ -99,6 +111,7 @@ const Chat = () => {
     } catch (error) {
       console.error('Грешка при комуникация с AI:', error);
       toast.error('Грешка при комуникация с AI. Моля, опитайте отново.');
+      setTypingMessage(null);
     } finally {
       setIsLoading(false);
     }
@@ -161,7 +174,6 @@ const Chat = () => {
         </div>
 
         <div className="flex gap-4 h-full">
-          {/* Мобилен изглед с двете табове */}
           {isMobileView ? (
             <div className="w-full flex flex-col">
               {currentView === 'list' ? (
@@ -213,7 +225,7 @@ const Chat = () => {
                     <>
                       <div className="flex-1 overflow-hidden flex flex-col">
                         <ScrollArea className="flex-1 pr-2">
-                          {activeConversation.messages.length === 0 ? (
+                          {activeConversation.messages.length === 0 && !typingMessage ? (
                             <div className="text-center text-gray-500 h-full flex items-center justify-center p-4">
                               <p>Напишете съобщение, за да започнете разговор с AI.</p>
                             </div>
@@ -222,16 +234,8 @@ const Chat = () => {
                               {activeConversation.messages.map(message => (
                                 <ChatMessage key={message.id} message={message} />
                               ))}
-                              {isLoading && (
-                                <div className="flex items-start gap-2 max-w-[80%]">
-                                  <div className="h-8 w-8 rounded-full overflow-hidden bg-blue-600 flex items-center justify-center text-white">
-                                    AI
-                                  </div>
-                                  <div className="space-y-2">
-                                    <Skeleton className="h-4 w-[250px]" />
-                                    <Skeleton className="h-4 w-[200px]" />
-                                  </div>
-                                </div>
+                              {typingMessage && (
+                                <ChatMessage message={typingMessage} isLoading={true} />
                               )}
                               <div ref={messagesEndRef} />
                             </div>
@@ -253,6 +257,7 @@ const Chat = () => {
                               className="self-end"
                             >
                               <Send className="h-4 w-4" />
+                              {isLoading && <span className="ml-2">...</span>}
                             </Button>
                           </div>
                         </div>
@@ -268,7 +273,6 @@ const Chat = () => {
             </div>
           ) : (
             <>
-              {/* Десктоп изглед със странична лента и чат в един прозорец */}
               {showSidebar && (
                 <div className={`overflow-hidden border rounded-lg bg-card flex flex-col w-1/3`}>
                   <div className="p-3 border-b flex flex-col gap-2">
@@ -323,7 +327,7 @@ const Chat = () => {
                     </div>
                     <div className="flex-1 overflow-hidden flex flex-col">
                       <ScrollArea className="flex-1 px-3">
-                        {activeConversation.messages.length === 0 ? (
+                        {activeConversation.messages.length === 0 && !typingMessage ? (
                           <div className="text-center text-gray-500 h-full flex items-center justify-center p-4">
                             <p>Напишете съобщение, за да започнете разговор с AI.</p>
                           </div>
@@ -332,16 +336,8 @@ const Chat = () => {
                             {activeConversation.messages.map(message => (
                               <ChatMessage key={message.id} message={message} />
                             ))}
-                            {isLoading && (
-                              <div className="flex items-start gap-2 max-w-[80%]">
-                                <div className="h-8 w-8 rounded-full overflow-hidden bg-blue-600 flex items-center justify-center text-white">
-                                  AI
-                                </div>
-                                <div className="space-y-2">
-                                  <Skeleton className="h-4 w-[250px]" />
-                                  <Skeleton className="h-4 w-[200px]" />
-                                </div>
-                              </div>
+                            {typingMessage && (
+                              <ChatMessage message={typingMessage} isLoading={true} />
                             )}
                             <div ref={messagesEndRef} />
                           </div>
@@ -363,6 +359,7 @@ const Chat = () => {
                             className="self-end"
                           >
                             <Send className="h-4 w-4" />
+                            {isLoading && <span className="ml-2">...</span>}
                           </Button>
                         </div>
                       </div>
