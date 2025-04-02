@@ -1,10 +1,10 @@
 
 import { ChatMessage } from '@/types';
 
-const API_KEY = "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";
-const API_URL = "https://openrouter.ai/api/v1/chat/completions";
+const API_KEY = "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";
+const API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
-// Функция за конвертиране на съобщения за OpenRouter API
+// Функция за конвертиране на съобщения за Groq API
 export const formatMessagesForApi = (messages: ChatMessage[]) => {
   return messages.map(msg => ({
     role: msg.role,
@@ -51,11 +51,9 @@ export const sendMessageToAI = async (messages: ChatMessage[]): Promise<string> 
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${API_KEY}`,
-        'HTTP-Referer': window.location.origin,
-        'X-Title': 'Personal Assistant App',
       },
       body: JSON.stringify({
-        model: "google/gemini-2.0-flash-thinking-exp:free",
+        model: "gemma2-9b-it",
         messages: messagesWithSystemInstruction,
         temperature: 0.7,
         max_tokens: 1000,
