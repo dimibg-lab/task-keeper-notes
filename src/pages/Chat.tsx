@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { useAppContext } from '@/context/AppContext';
 import { ChatMessage as ChatMessageType } from '@/types';
@@ -9,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
-import { sendMessageToAI } from '@/utils/chatUtils';
+import { sendMessageToAI, generateConversationTitle } from '@/utils/chatUtils';
 import ChatMessage from '@/components/ChatMessage';
 import { Send, Plus, Trash2, ArrowLeft, MessageSquare, MessageSquarePlus } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -26,7 +25,6 @@ const Chat = () => {
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [newConversationTitle, setNewConversationTitle] = useState('');
   const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
   const [showSidebar, setShowSidebar] = useState(true);
   const [currentView, setCurrentView] = useState<'list' | 'chat'>(isMobileView ? 'list' : 'chat');
@@ -95,7 +93,7 @@ const Chat = () => {
       addMessageToConversation(activeConversationId, assistantMessage);
       
       if (updatedConversation.messages.length === 0) {
-        const title = newMessage.split('\n')[0].substring(0, 30) + (newMessage.length > 30 ? '...' : '');
+        const title = generateConversationTitle(newMessage);
         updateConversation(activeConversationId, { title });
       }
     } catch (error) {
@@ -108,11 +106,10 @@ const Chat = () => {
   
   const handleCreateNewConversation = () => {
     const id = addConversation({
-      title: newConversationTitle || 'Нов разговор',
+      title: 'Нов разговор',
       messages: [],
     });
     setActiveConversationId(id);
-    setNewConversationTitle('');
     if (isMobileView) {
       setCurrentView('chat');
     }
@@ -170,17 +167,9 @@ const Chat = () => {
               {currentView === 'list' ? (
                 <div className="flex-1 overflow-hidden flex flex-col">
                   <div className="mb-4">
-                    <div className="flex gap-2 mb-4">
-                      <Input
-                        value={newConversationTitle}
-                        onChange={e => setNewConversationTitle(e.target.value)}
-                        placeholder="Заглавие на нов разговор"
-                        className="flex-1"
-                      />
-                      <Button onClick={handleCreateNewConversation}>
-                        <MessageSquarePlus className="h-4 w-4 mr-1" /> Нов чат
-                      </Button>
-                    </div>
+                    <Button onClick={handleCreateNewConversation} className="w-full">
+                      <MessageSquarePlus className="h-4 w-4 mr-2" /> Нов чат
+                    </Button>
                   </div>
                   <ScrollArea className="flex-1">
                     <div className="space-y-2 pr-2">
@@ -284,17 +273,9 @@ const Chat = () => {
                 <div className={`overflow-hidden border rounded-lg bg-card flex flex-col w-1/3`}>
                   <div className="p-3 border-b flex flex-col gap-2">
                     <h2 className="font-semibold">Разговори</h2>
-                    <div className="flex gap-2">
-                      <Input
-                        value={newConversationTitle}
-                        onChange={e => setNewConversationTitle(e.target.value)}
-                        placeholder="Заглавие на нов разговор"
-                        className="flex-1"
-                      />
-                      <Button onClick={handleCreateNewConversation} size="icon">
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    <Button onClick={handleCreateNewConversation} className="w-full">
+                      <MessageSquarePlus className="h-4 w-4 mr-2" /> Нов чат
+                    </Button>
                   </div>
                   <ScrollArea className="flex-1">
                     <div className="p-2 space-y-2">
@@ -314,7 +295,7 @@ const Chat = () => {
                               <h3 className="font-medium truncate">{conversation.title || 'Нов разговор'}</h3>
                               <p className="text-xs text-gray-500 truncate">
                                 {conversation.messages.length > 0 
-                                  ? `${conversation.messages.length} съобщения` 
+                                  ? `${conversation.messages.length} съобщени��` 
                                   : 'Няма съобщения'}
                               </p>
                             </div>

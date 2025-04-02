@@ -23,6 +23,17 @@ const removeMarkdownFormatting = (text: string): string => {
   return formattedText;
 };
 
+// Функция за генериране на заглавие на разговор от първото съобщение
+export const generateConversationTitle = (message: string): string => {
+  // Вземаме първите 30 символа от съобщението или цялото съобщение, ако е по-кратко
+  const firstLine = message.split('\n')[0];
+  const title = firstLine.length > 30 
+    ? firstLine.substring(0, 30) + '...' 
+    : firstLine;
+  
+  return title;
+};
+
 // Функция за изпращане на съобщение към AI и получаване на отговор
 export const sendMessageToAI = async (messages: ChatMessage[]): Promise<string> => {
   try {
