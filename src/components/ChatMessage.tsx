@@ -45,7 +45,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLoading = false })
               </div>
             </div>
           ) : (
-            <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+            <p className="text-sm whitespace-pre-wrap break-words overflow-auto">{message.content}</p>
           )}
           <span className="text-xs opacity-70 block mt-1">
             {new Date(message.timestamp).toLocaleTimeString()}
